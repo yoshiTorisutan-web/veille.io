@@ -1,0 +1,17 @@
+{
+  "name": "veille-dashboard",
+  "version": "3.0.0",
+  "description": "Tableau de veille RSS — SQLite, favoris, export CSV, cron",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npx nodemon server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0"
+  }
+}
