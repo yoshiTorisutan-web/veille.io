@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Tableau de Veille</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%236366f1' width='100' height='100'/><text x='50' y='60' font-size='60' font-weight='bold' text-anchor='middle' fill='white' font-family='system-ui'>V</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -68,7 +69,7 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
 .btn-icon.ghost{background:var(--bg3);border:1px solid var(--border);color:var(--muted2)}
 .btn-icon.ghost:hover{border-color:var(--border2);color:var(--text)}
 .kw-list{display:flex;flex-direction:column;gap:3px}
-.kw-item{display:flex;align-items:center;justify-content:space-between;padding:6px 9px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);transition:border-color .15s;cursor:pointer;user-select:none}
+.kw-item{display:flex;align-items:center;justify-content:space-between;padding:6px 9px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);transition:border-color .15s;cursor:pointer}
 .kw-item:hover,.kw-item.active{border-color:var(--accent);background:var(--accent-light)}
 .kw-item.drag-over{border-color:var(--accent2);background:rgba(129,140,248,.2)}
 .kw-left{display:flex;align-items:center;gap:6px;min-width:0}
@@ -119,7 +120,7 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
 /* ── Cards grid ── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
 .grid.list-view{grid-template-columns:1fr}
-.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color .15s,box-shadow .15s;cursor:pointer}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color .15s}
 .card:hover{border-color:var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.2)}
 .card.unread .card-title{font-weight:600}
 .card.clustered{border-left:3px solid var(--cyan)}
@@ -150,7 +151,7 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
 .card-link:hover{border-color:var(--border2);color:var(--text)}
 
 /* ── Reading pane ── */
-.reading-pane{position:fixed;top:50px;right:0;width:480px;height:calc(100vh - 50px);background:var(--bg2);border-left:1px solid var(--border);z-index:50;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
+.reading-pane{position:fixed;top:50px;right:0;width:480px;height:calc(100vh - 50px);background:var(--bg2);border-left:1px solid var(--border);z-index:50;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .2s}
 .reading-pane.open{transform:translateX(0)}
 .pane-header{padding:1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .pane-close{background:none;border:none;color:var(--muted);font-size:18px;padding:4px;cursor:pointer;transition:color .15s;margin-left:auto}
@@ -161,7 +162,7 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
 .pane-excerpt{font-size:14px;line-height:1.8;color:var(--muted2)}
 .pane-note-area{display:flex;flex-direction:column;gap:6px}
 .pane-note-area label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
-.pane-note-area textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;color:var(--text);resize:vertical;min-height:80px;outline:none;transition:border-color .2s;font-size:13px;line-height:1.6}
+.pane-note-area textarea{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;color:var(--text);resize:vertical;min-height:80px;outline:none;transition:border-color .2s}
 .pane-note-area textarea:focus{border-color:var(--accent)}
 .pane-tags-area{display:flex;flex-direction:column;gap:6px}
 .pane-tags-area label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
@@ -998,146 +999,4 @@ function resetCountdown(){
   el.textContent=`dans ${rem} min`;
   S.countdown=setInterval(()=>{rem--;if(rem<=0)rem=S.refreshMin;el.textContent=`dans ${rem} min`;},60000);
 }
-
-// ── Analytics ──────────────────────────────────────────────
-async function loadAnalytics(){
-  const data=await apiFetch("/api/analytics");
-  if(!data) return;
-
-  // Chart by day
-  const days={};
-  data.byDay.forEach(r=>{if(!days[r.day])days[r.day]=0;days[r.day]+=r.count;});
-  const dayLabels=Object.keys(days).sort().slice(-30);
-  const dayValues=dayLabels.map(d=>days[d]||0);
-
-  destroyChart("chart-by-day");
-  const ctx1=document.getElementById("chart-by-day").getContext("2d");
-  S.charts["chart-by-day"]=new Chart(ctx1,{
-    type:"bar",
-    data:{labels:dayLabels,datasets:[{label:"Articles",data:dayValues,backgroundColor:"rgba(99,102,241,.6)",borderColor:"#6366f1",borderWidth:1}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#6b6a8a",maxTicksLimit:10}},y:{ticks:{color:"#6b6a8a"}}}}
-  });
-
-  // Chart by source (top 8)
-  const top8=data.bySource.slice(0,8);
-  destroyChart("chart-sources");
-  const ctx2=document.getElementById("chart-sources").getContext("2d");
-  S.charts["chart-sources"]=new Chart(ctx2,{
-    type:"doughnut",
-    data:{labels:top8.map(s=>s.source),datasets:[{data:top8.map(s=>s.count),backgroundColor:["#6366f1","#818cf8","#10b981","#f59e0b","#06b6d4","#ef4444","#8b5cf6","#ec4899"]}]},
-    options:{responsive:true,plugins:{legend:{position:"right",labels:{color:"#9897b8",font:{size:11}}}}}
-  });
-
-  // KW stats table
-  document.getElementById("kw-stats-body").innerHTML=data.byKeyword.map(k=>`
-    <tr>
-      <td>${k.keyword}</td>
-      <td>${k.count}</td>
-      <td>${Math.round((k.avg_rel||0)*100)}%</td>
-      <td>${k.favs||0}</td>
-    </tr>
-  `).join("");
-
-  // Trending table
-  document.getElementById("trending-body").innerHTML=data.trending.map(t=>{
-    const ratio=t.total>0?t.recent/t.total:0;
-    const hot=ratio>0.5&&t.recent>=3;
-    return `<tr>
-      <td>${t.keyword}</td>
-      <td style="color:var(--gold)">${t.recent}</td>
-      <td>${t.total}</td>
-      <td><span class="trend-badge ${hot?"hot":"norm"}">${hot?"🔥 Trending":"Stable"}</span></td>
-    </tr>`;
-  }).join("");
-
-  // Fetch log
-  document.getElementById("fetch-log").innerHTML=data.fetchLog.map(l=>`
-    <div class="log-row">
-      <span style="color:var(--muted)">${fmtDate(l.fetched_at)}</span>
-      <span class="log-count">+${l.inserted} articles</span>
-    </div>
-  `).join("") || `<div style="color:var(--muted);font-size:12px">Aucun refresh enregistré.</div>`;
-}
-
-function destroyChart(id){if(S.charts[id]){S.charts[id].destroy();delete S.charts[id];}}
-
-// ── Admin ──────────────────────────────────────────────────
-async function loadAdmin(){
-  const [feeds,settings]=await Promise.all([apiFetch("/api/feeds"),apiFetch("/api/settings")]);
-  renderFeeds(feeds||[]);
-  if(settings){
-    document.getElementById("cfg-interval").value=settings.refresh_interval||30;
-    document.getElementById("cfg-dedup").value=settings.dedup_threshold||0.75;
-  }
-}
-
-function renderFeeds(feeds){
-  document.getElementById("feeds-list").innerHTML=feeds.map(f=>`
-    <div class="list-item">
-      <div class="li-info"><div class="li-name">${f.name}</div><div class="li-sub">${f.url}</div></div>
-      <button class="toggle ${f.active?"on":"off"}" onclick="toggleFeed(${f.id},${f.active},this,'${f.name}','${encodeURIComponent(f.url)}')"></button>
-      <button class="btn-icon ghost" style="width:26px;height:26px;font-size:13px" onclick="delFeed(${f.id})">✕</button>
-    </div>
-  `).join("")||`<div style="color:var(--muted);font-size:12px">Aucun flux.</div>`;
-}
-
-async function addFeed(){
-  const name=document.getElementById("feed-name").value.trim();
-  const url=document.getElementById("feed-url").value.trim();
-  if(!name||!url) return toast("Nom et URL requis","error");
-  const res=await apiFetch("/api/feeds","POST",{name,url});
-  if(res?.ok){document.getElementById("feed-name").value="";document.getElementById("feed-url").value="";loadAdmin();toast("Flux ajouté","success");}
-  else toast(res?.error||"Erreur","error");
-}
-
-async function toggleFeed(id,active,btn,name,urlEnc){
-  const newActive=!active;
-  await apiFetch(`/api/feeds/${id}`,"PUT",{name,url:decodeURIComponent(urlEnc),active:newActive});
-  btn.className=`toggle ${newActive?"on":"off"}`;
-  btn.onclick=()=>toggleFeed(id,newActive,btn,name,urlEnc);
-}
-
-async function delFeed(id){
-  if(!confirm("Supprimer ce flux ?")) return;
-  await apiFetch(`/api/feeds/${id}`,"DELETE");
-  loadAdmin();
-}
-
-async function saveSettings(){
-  const res=await apiFetch("/api/settings","PUT",{
-    refresh_interval:document.getElementById("cfg-interval").value,
-    dedup_threshold:document.getElementById("cfg-dedup").value,
-  });
-  if(res?.ok){S.refreshMin=parseInt(document.getElementById("cfg-interval").value);resetCountdown();toast("Paramètres enregistrés","success");}
-}
-
-// ── Helpers ────────────────────────────────────────────────
-async function apiFetch(path,method="GET",body=null){
-  try{
-    const opts={method,headers:{"Content-Type":"application/json"}};
-    if(body) opts.body=JSON.stringify(body);
-    const res=await fetch(API+path,opts);
-    return await res.json();
-  }catch{
-    toast("Serveur non accessible — lance: node server.js","error");
-    return null;
-  }
-}
-
-function fmtDate(iso){
-  try{return new Date(iso).toLocaleDateString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}
-  catch{return "";}
-}
-
-function toast(msg,type="info"){
-  const el=document.getElementById("toast");
-  el.textContent=msg;el.className=`toast ${type} show`;
-  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),3500);
-}
-
-document.getElementById("kw-input").addEventListener("keydown",e=>{if(e.key==="Enter")addKeyword();});
-document.getElementById("coll-input").addEventListener("keydown",e=>{if(e.key==="Enter")addCollection();});
-document.getElementById("pane-tag-input").addEventListener("keydown",e=>{if(e.key==="Enter")addPaneTag();});
-</script>
-</body>
-</html>
+[...]
