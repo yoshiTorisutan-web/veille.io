@@ -136,8 +136,8 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
 .badge-dup{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.25);font-size:10px}
 .card-date{font-size:11px;color:var(--muted);margin-left:auto}
 .card-title{font-size:13px;line-height:1.45}
-.card-excerpt{font-size:12px;color:var(--muted2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.list-view .card-excerpt{-webkit-line-clamp:1}
+.card-excerpt{font-size:12px;color:var(--muted2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.list-view .card-excerpt{-webkit-line-clamp:1;line-clamp:1}
 .card-note{font-size:12px;color:var(--gold);font-style:italic;border-left:2px solid var(--gold);padding-left:7px}
 .card-score{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
 .score-bar{height:3px;border-radius:99px;background:var(--bg4);flex:1;overflow:hidden}
@@ -243,23 +243,76 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
 .toast.success{background:#065f46;color:#a7f3d0;border:1px solid #047857}
 .toast.error{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
 .toast.info{background:#1e1b4b;color:#a5b4fc;border:1px solid #3730a3}
+
+/* ── Responsive ── */
+.nav-tabs{display:flex;align-items:stretch}
+.sidebar-toggle{display:none;background:none;border:none;color:var(--muted2);font-size:20px;line-height:1;padding:4px 6px;border-radius:var(--radius);transition:color .15s}
+.sidebar-toggle:hover{color:var(--text)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:190}
+.sidebar-overlay.show{display:block}
+
+@media(max-width:768px){
+  nav{height:auto;padding:0 1rem;flex-wrap:wrap;gap:0}
+  .sidebar-toggle{display:flex;align-items:center;height:52px;margin-right:.25rem}
+  .logo{display:flex;align-items:center;height:52px;margin-right:auto}
+  .nav-actions{height:52px;align-items:center;gap:6px}
+  .nav-spacer{display:none}
+  .nav-tabs{order:10;width:100%;overflow-x:auto;border-top:1px solid var(--border);scrollbar-width:none;-ms-overflow-style:none}
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .nav-tab{flex-shrink:0;height:44px;font-size:13px;padding:0 14px;gap:6px}
+  .sidebar{position:fixed;top:96px;left:0;width:285px;height:calc(100vh - 96px);z-index:200;transform:translateX(-100%);transition:transform .25s;border-right:1px solid var(--border2)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block;inset:96px 0 0 0}
+  .reading-pane{width:100%;top:96px}
+  .main{padding:1rem;gap:1.25rem}
+  .page{gap:1.25rem}
+  .stats{grid-template-columns:repeat(2,1fr);gap:12px}
+  .stat{padding:1rem 1.1rem}
+  .stat-val{font-size:22px}
+  .stat-label{font-size:11px}
+  .toolbar{gap:8px}
+  .toolbar input{flex-basis:100%;min-width:0}
+  .analytics-grid{grid-template-columns:1fr;gap:1.25rem}
+  .admin-grid{grid-template-columns:1fr;gap:1.25rem}
+  .adv-filters{gap:.75rem}
+  .adv-field{min-width:140px}
+  .card{padding:1.1rem}
+  .chart-panel{padding:1.25rem}
+  .panel{padding:1.25rem}
+}
+
+@media(max-width:480px){
+  nav{padding:0 .75rem}
+  .nav-tab{height:40px;font-size:12px;padding:0 11px}
+  .stats{gap:10px}
+  .stat{padding:.9rem 1rem}
+  .stat-val{font-size:20px}
+  .grid{grid-template-columns:1fr}
+  .refresh-text{display:none}
+  .toolbar{gap:7px}
+  .pane-title{font-size:16px}
+  .pagination{gap:4px;flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
 
 <!-- ── Nav ── -->
 <nav>
+  <button class="sidebar-toggle" id="sidebar-toggle-btn" onclick="toggleSidebar()" title="Menu">☰</button>
   <span class="logo">veille<em>.io</em></span>
-  <span class="nav-tab active" data-page="dashboard">Dashboard</span>
-  <span class="nav-tab" data-page="favorites">★ Favoris <span class="nav-badge" id="nav-fav-count">0</span></span>
-  <span class="nav-tab" data-page="collections">Collections</span>
-  <span class="nav-tab" data-page="analytics">Analytics</span>
-  <span class="nav-tab" data-page="admin">Admin</span>
+  <div class="nav-tabs">
+    <span class="nav-tab active" data-page="dashboard">Dashboard</span>
+    <span class="nav-tab" data-page="favorites">★ Favoris <span class="nav-badge" id="nav-fav-count">0</span></span>
+    <span class="nav-tab" data-page="collections">Collections</span>
+    <span class="nav-tab" data-page="analytics">Analytics</span>
+    <span class="nav-tab" data-page="admin">Admin</span>
+  </div>
   <div class="nav-spacer"></div>
   <div class="nav-actions">
     <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Thème">☀</button>
     <button class="refresh-btn" id="nav-refresh" onclick="doRefresh()">
-      <span class="ricon">↻</span> Actualiser
+      <span class="ricon">↻</span><span class="refresh-text"> Actualiser</span>
     </button>
   </div>
 </nav>
@@ -292,6 +345,7 @@ nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.25re
       <div id="next-refresh" style="font-size:12px;color:var(--muted2)">—</div>
     </div>
   </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
   <!-- ══ DASHBOARD ══ -->
   <div class="page active main" id="page-dashboard">
@@ -471,9 +525,20 @@ const S = {
   charts: {},
 };
 
+// ── Sidebar mobile ─────────────────────────────────────────
+function toggleSidebar() {
+  document.querySelector(".sidebar").classList.toggle("open");
+  document.getElementById("sidebar-overlay").classList.toggle("show");
+}
+function closeSidebar() {
+  document.querySelector(".sidebar").classList.remove("open");
+  document.getElementById("sidebar-overlay").classList.remove("show");
+}
+
 // ── Router ─────────────────────────────────────────────────
 document.querySelectorAll(".nav-tab").forEach(tab => {
   tab.addEventListener("click", () => {
+    closeSidebar();
     document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     tab.classList.add("active");
@@ -999,4 +1064,6 @@ function resetCountdown(){
   el.textContent=`dans ${rem} min`;
   S.countdown=setInterval(()=>{rem--;if(rem<=0)rem=S.refreshMin;el.textContent=`dans ${rem} min`;},60000);
 }
-[...]
+</script>
+</body>
+</html>
